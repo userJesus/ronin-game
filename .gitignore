@@ -1,0 +1,42 @@
+# dependências e saídas de build
+node_modules
+dist
+dist-single
+dist-ssr
+.vite/
+coverage/
+
+# testes
+test-results
+playwright-report
+tests/e2e/__screens__
+
+# arte: prévias gravadas pelos scripts e versões antigas das folhas
+assets-src/preview/
+assets-src/*.v1.*
+*.bak
+
+# logs, ambiente e editores
+*.log
+npm-debug.log*
+.env
+.env.*
+*.local
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# estado local de ferramentas e credenciais
+.claude/
+.codex/
+.agents/
+.cursor/
+.npmrc
+*.pem
+*.key
+*.p12
+*.pfx
+*.zip
+*.tsbuildinfo
+!*.example

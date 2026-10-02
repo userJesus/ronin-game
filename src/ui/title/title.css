@@ -1,0 +1,257 @@
+/* Tela de título: a paisagem como fundo fixo, o símbolo no alto, os dois samurais no centro para escolher,
+   o recorde na lateral e "Jogar" embaixo (só depois da escolha). Nada de instruções: o menu é só isso.
+   Medidas em cqw/cqh: a tela de título é o contêiner (o tamanho dela é o da janela). */
+.scr-title {
+  container-type: size;
+  overflow: hidden;
+  touch-action: manipulation;
+  background: var(--ink);
+}
+.scr-title > * {
+  /* símbolo e faixas de cima e de baixo; a altura dos samurais é o que sobra */
+  --mark: clamp(76px, 16cqh, 160px);
+  --plate: clamp(40px, 6.4cqh, 58px);
+  --cta: clamp(76px, 13cqh, 118px);
+  --top: calc(var(--pt) + var(--mark) + 6px);
+  --bottom: calc(var(--pb) + var(--cta) + var(--plate));
+  --gap: clamp(12px, 3.4cqw, 64px);
+  /* 1.03 ≈ largura dos dois juntos / altura (474 + 419 px de largura para 882 de altura, mais folga) */
+  --char-h: min(calc(100cqh - var(--top) - var(--bottom)), calc((100cqw - var(--pl) - var(--pr) - var(--gap)) / 1.03), 800px);
+}
+
+.title-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 30%;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+/* chão escuro embaixo: assenta os samurais e dá contraste aos nomes */
+.scr-title::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 34%;
+  background: linear-gradient(to top, rgba(8, 8, 9, 0.62), rgba(8, 8, 9, 0.28) 45%, rgba(8, 8, 9, 0));
+  pointer-events: none;
+}
+.scr-title > :not(.title-bg) { z-index: 1; }
+
+/* ---------------------------------------------------------------- símbolo */
+.title-mark {
+  position: absolute;
+  top: var(--pt);
+  left: 50%;
+  width: var(--mark);
+  height: var(--mark);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.title-emblem { display: block; width: 100%; height: 100%; overflow: visible; }
+.te-ink { fill: var(--ink); }
+/* halo de papel: separa o nanquim das nuvens escuras e dos galhos (no céu claro some) */
+.te-halo { fill: var(--paper); stroke: var(--paper); stroke-width: 10px; stroke-linejoin: round; opacity: 0.55; }
+
+/* ---------------------------------------------------------------- samurais */
+.char-pick {
+  position: absolute;
+  left: 50%;
+  bottom: var(--bottom);
+  display: flex;
+  align-items: flex-end;
+  gap: var(--gap);
+  transform: translateX(-50%);
+}
+.char-card {
+  --ol-c: rgba(233, 231, 226, 0);
+  --glow: rgba(255, 255, 255, 0);
+  --lum: 1;
+  position: relative;
+  isolation: isolate;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--paper);
+  cursor: pointer;
+}
+/* sombra no chão, como as do jogo */
+.char-card::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  left: 4%;
+  right: 4%;
+  bottom: -2.2%;
+  height: 6%;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0));
+  pointer-events: none;
+}
+.char-art {
+  display: block;
+  height: var(--char-h);
+  width: auto;
+  transform-origin: 50% 100%;
+  /* contorno (4 sombras de 2 px) e brilho: a lista é sempre a mesma, só as cores mudam (a transição anda) */
+  filter: drop-shadow(2px 0 0 var(--ol-c)) drop-shadow(-2px 0 0 var(--ol-c)) drop-shadow(0 2px 0 var(--ol-c))
+    drop-shadow(0 -2px 0 var(--ol-c)) drop-shadow(0 0 18px var(--glow)) brightness(var(--lum));
+  transition: filter 0.25s ease, transform 0.3s cubic-bezier(0.2, 0.8, 0.3, 1.15);
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.char-card:hover { --ol-c: rgba(233, 231, 226, 0.55); }
+:where(#hud) .char-card:focus-visible { outline: none; }
+.char-card:focus-visible { --ol-c: rgba(233, 231, 226, 0.85); }
+/* escolhido: contorno branco (o herói do jogo também tem) e um passo à frente; o outro recua na sombra */
+.char-card[aria-checked="true"] { --ol-c: #fff; --glow: rgba(255, 255, 255, 0.32); }
+.char-card[aria-checked="true"] .char-art { transform: scale(1.035); }
+.has-pick .char-card[aria-checked="false"] { --lum: 0.5; }
+.has-pick .char-card[aria-checked="false"]:hover { --lum: 0.72; }
+
+/* nome no pé de cada um: pincelada de nanquim; no escolhido, de papel */
+.char-plate {
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 1.6cqw, 10px);
+  margin-top: calc(var(--plate) * 0.16);
+  padding: 7px clamp(12px, 3.4cqw, 22px) 6px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  isolation: isolate;
+  pointer-events: none;
+}
+.char-plate::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--ink);
+  opacity: 0.86;
+  -webkit-mask: var(--brush-btn) center / 100% 100% no-repeat;
+  mask: var(--brush-btn) center / 100% 100% no-repeat;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+/* em tela estreita o nome encolhe pela largura (as duas plaquinhas não se encostam) */
+.char-kanji { font: 800 clamp(13px, min(2.6cqh, 4.2cqw), 24px)/1 var(--f-title); opacity: 0.6; }
+.char-name { font: 800 clamp(15px, min(3.3cqh, 5.2cqw), 30px)/1 var(--f-title); letter-spacing: 0.14em; }
+.char-card[aria-checked="true"] .char-plate { color: var(--ink); }
+.char-card[aria-checked="true"] .char-plate::before { background: var(--paper); opacity: 1; }
+.char-card[aria-checked="true"] .char-kanji { opacity: 0.85; }
+
+/* ---------------------------------------------------------------- Jogar (e o especial do escolhido) */
+.title-cta {
+  position: absolute;
+  left: 50%;
+  bottom: var(--pb);
+  height: var(--cta);
+  width: max-content;
+  max-width: calc(100cqw - var(--pl) - var(--pr));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
+  transform: translate(-50%, 10px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0s linear 0.25s;
+}
+.has-pick .title-cta { opacity: 1; visibility: visible; transform: translate(-50%, 0); transition: opacity 0.25s ease, transform 0.25s ease; }
+.cta-sub {
+  font-size: clamp(12px, 1.9cqh, 16px);
+  line-height: 1.35;
+  letter-spacing: 0.04em;
+  text-align: center;
+  color: var(--paper);
+  text-shadow: var(--ol);
+}
+.title-cta .btn-lg { min-height: clamp(52px, 8cqh, 72px); padding: 0 clamp(40px, 6cqh, 64px); font-size: clamp(22px, 3.6cqh, 32px); }
+
+/* ---------------------------------------------------------------- recorde (lateral) */
+.title-record {
+  position: absolute;
+  top: 50%;
+  right: var(--pr);
+  display: grid;
+  justify-items: end;
+  min-width: 9.5em;
+  padding: 1em 1.25em;
+  transform: translateY(-50%);
+  font-size: clamp(12px, 1.8cqh, 18px);
+  background: rgba(11, 11, 12, 0.74);
+  border-radius: 3px 6px 3px 5px;
+  box-shadow: 0 0 0 1px rgba(233, 231, 226, 0.2), 0 5px 0 rgba(0, 0, 0, 0.28);
+  text-align: right;
+}
+.rec-head { display: flex; align-items: center; gap: 0.6em; }
+.rec-head b { font-weight: 400; letter-spacing: 0.16em; text-transform: uppercase; }
+.rec-seal { width: 1.65em; height: 1.65em; font-size: 1.1em; background: var(--paper); color: var(--ink); transform: rotate(-4deg); }
+.rec-score { margin-top: 0.75em; font: 800 2.7em/1 var(--f-title); font-variant-numeric: tabular-nums; }
+.rec-none { margin-top: 0.8em; font: 800 1.45em/1.1 var(--f-title); color: var(--paper-dim); }
+.rec-unit { color: var(--paper-dim); letter-spacing: 0.04em; }
+.rec-wave {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  gap: 0.6em;
+  justify-self: stretch;
+  margin-top: 0.7em;
+  padding-top: 0.55em;
+  border-top: 1px solid rgba(233, 231, 226, 0.2);
+}
+.rec-wave b { font: 800 1.8em/1 var(--f-title); font-variant-numeric: tabular-nums; }
+
+.corner-mute { position: absolute; top: var(--pt); right: var(--pr); }
+
+/* ---------------------------------------------------------------- tela em pé (celular, tablet) */
+@container (max-aspect-ratio: 5/4) {
+  /* a paisagem preenche pela altura; desliza até a lua ficar no meio (sem passar da borda direita) e o símbolo
+     vai para dentro dela. Lua: centro em (1088, 205) px da imagem de 1672 × 941, raio de 183 px (19,4% da
+     altura); na altura de 100cqh a imagem tem 177,68cqh de largura e a lua fica em 115,62cqh × 21,8cqh */
+  .scr-title > * {
+    --bgx: max(50cqw - 115.62cqh, 100cqw - 177.68cqh);
+    --mark: min(24cqh, 62cqw);
+    --top: calc(21.8cqh + var(--mark) / 2 + 6px);
+  }
+  .title-bg { object-position: var(--bgx) 0; }
+  .title-mark { top: calc(21.8cqh - var(--mark) / 2); left: calc(var(--bgx) + 115.62cqh); }
+  /* recorde numa linha só no alto, do lado oposto ao som (o símbolo na lua fica livre): 記 12.345 · onda 7 */
+  .title-record {
+    top: var(--pt);
+    right: auto;
+    left: var(--pl);
+    display: flex;
+    align-items: center;
+    gap: 0.55em;
+    min-width: 0;
+    padding: 0.45em 0.8em 0.45em 0.5em;
+    transform: none;
+    font-size: clamp(12px, 1.7cqh, 16px);
+    white-space: nowrap;
+  }
+  .rec-head b, .title-record > .rec-unit { display: none; }
+  .rec-score { margin: 0; font-size: 1.55em; }
+  .rec-none { margin: 0; font-size: 1.1em; }
+  .rec-wave { margin: 0; padding: 0 0 0 0.6em; border-top: 0; border-left: 1px solid rgba(233, 231, 226, 0.25); }
+  .rec-wave b { font-size: 1.3em; }
+}
+
+/* ---------------------------------------------------------------- tela deitada e baixa (celular deitado) */
+@container (max-height: 520px) and (min-aspect-ratio: 5/4) {
+  /* o símbolo vai para o canto: os samurais ficam com a altura toda; sem a linha do especial */
+  .scr-title > * { --mark: clamp(56px, 18cqh, 92px); --top: var(--pt); --cta: clamp(56px, 15cqh, 76px); }
+  .title-mark { left: var(--pl); transform: none; }
+  .cta-sub { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .char-card[aria-checked="true"] .char-art { transform: none; }
+}

@@ -1,0 +1,47 @@
+:root {
+  --ink: #0b0b0c;
+  --paper: #e9e7e2;
+  --mist: #bcbcbc;
+  --ash: #6d6c6a;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--ink);
+  color: var(--paper);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#app { position: fixed; inset: 0; overflow: hidden; }
+
+#view {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  cursor: crosshair;
+}
+
+#boot {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding-inline: 16px;
+  text-align: center;
+  font: 16px/1.5 "DotGothic16", ui-monospace, monospace;
+  color: var(--paper);
+  background: var(--ink);
+}
+
+[hidden] { display: none !important; }

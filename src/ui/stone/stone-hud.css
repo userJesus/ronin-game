@@ -1,0 +1,204 @@
+/* HUD de pedra e tinta: lajes rachadas, giz e nanquim. Só tons de cinza; branco puro só nos destaques. */
+#hud {
+  --sh-chalk: #dedede;
+  --sh-dim: #9a9a9a;
+  --sh-mono: "Courier New", "Cascadia Mono", ui-monospace, monospace;
+  --sh-serif: Georgia, "Times New Roman", serif;
+  /* contorno escuro para o giz ler sobre a lama cinza */
+  --sh-ink: 0 1px 0 #000, 1px 0 0 rgba(0, 0, 0, 0.7), -1px 0 0 rgba(0, 0, 0, 0.7), 0 0 4px rgba(0, 0, 0, 0.85);
+}
+.sh-defs { position: absolute; width: 0; height: 0; overflow: hidden; pointer-events: none; }
+
+/* ---------------------------------------------------------------- vitais (canto superior esquerdo) */
+.sh-vitals {
+  grid-area: vitals;
+  justify-self: start;
+  position: relative;
+  width: var(--sh-w, clamp(236px, 27vw, 340px));
+  margin: -6px 0 0 -6px;
+  padding: 8px 12px 10px;
+  color: var(--sh-chalk);
+  font-family: var(--sh-mono);
+  text-shadow: var(--sh-ink);
+  /* pedra escura sob o giz: some para a direita, sem moldura */
+  background: linear-gradient(100deg, rgba(10, 10, 11, 0.7) 0%, rgba(10, 10, 11, 0.55) 62%, rgba(10, 10, 11, 0.08) 100%);
+  border-radius: 3px 10px 4px 2px;
+}
+.sh-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.sh-name { font: 400 19px/1 var(--sh-serif); letter-spacing: 0.32em; }
+.sh-form { font-size: 11px; letter-spacing: 0.14em; color: var(--sh-dim); white-space: nowrap; }
+.sh-rule { display: block; width: 100%; height: 6px; margin: 2px 0 3px; overflow: visible; }
+.sh-rule path { fill: none; stroke: #cecece; stroke-width: 1.4; vector-effect: non-scaling-stroke; opacity: 0.6; }
+
+.sh-meter { position: relative; margin-top: 3px; }
+.sh-meter[hidden] { display: none; }
+.sh-row { display: flex; align-items: baseline; gap: 8px; font-size: 12px; line-height: 1.15; letter-spacing: 0.2em; text-transform: uppercase; }
+.sh-lbl { flex: none; }
+.sh-val { margin-left: auto; letter-spacing: 0.05em; text-transform: none; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.sh-val b { font-size: 14px; font-weight: 700; }
+.sh-val i { font-style: normal; color: #8c8c8c; }
+.sh-warn { font-size: 10px; letter-spacing: 0.16em; color: #fff; opacity: 0; transition: opacity 0.15s; white-space: nowrap; }
+.sh-cap { margin-top: 1px; font-size: 10px; letter-spacing: 0.16em; color: var(--sh-dim); }
+.sh-cap .sh-status { margin-left: auto; letter-spacing: 0.08em; text-transform: none; }
+
+.sh-bar { display: block; width: 100%; height: auto; margin-top: 1px; overflow: visible; filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.4)); }
+.sh-s-base { fill: #323232; }
+.sh-s-trail { fill: #676767; }
+.sh-s-fill { fill: #dedede; }
+.sh-m-ki .sh-s-fill { fill: #b5b5b5; }
+.sh-m-fury .sh-s-fill { fill: #929292; }
+.sh-fill, .sh-trail { transform-box: fill-box; transform-origin: 0 50%; }
+.sh-fill { transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.3, 1); }
+.sh-trail { transition: transform 0.8s ease-in 0.15s; }
+.sh-marker { fill: #f1f1f1; transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.3, 1), opacity 0.2s; }
+.sh-notch { fill: #f1f1f1; opacity: 0.85; }
+
+/* vida crítica: aviso aceso e a laje pulsando */
+.sh-m-hp.is-low .sh-warn { opacity: 1; animation: sh-blink 0.9s steps(2, jump-none) infinite; }
+.sh-m-hp.is-low .sh-s-fill { animation: sh-throb 0.9s ease-in-out infinite; }
+/* Ki: acende com o iaido disponível; parado (forma de leão) fica apagado */
+.sh-m-ki.is-ready .sh-s-fill { fill: #dedede; }
+.sh-m-ki.is-ready .sh-notch { opacity: 0.25; }
+.sh-m-ki.is-locked { opacity: 0.42; }
+/* Fúria: cheia brilha; transformando treme; leão branca com halo (o tempo que resta), pisca no fim */
+.sh-m-fury[data-state="ready"] .sh-s-fill,
+.sh-m-fury[data-state="transform"] .sh-s-fill { fill: #efefef; }
+.sh-m-fury[data-state="ready"] .sh-bar { animation: sh-glow 1.4s ease-in-out infinite; }
+.sh-m-fury[data-state="ready"] .sh-status,
+.sh-m-fury[data-state="lion"] .sh-status,
+.sh-m-fury[data-state="transform"] .sh-status { color: #fff; }
+.sh-m-fury[data-state="transform"] .sh-s-fill { animation: sh-throb 0.3s ease-in-out infinite; }
+.sh-m-fury[data-state="lion"] .sh-s-fill { fill: #fff; }
+.sh-m-fury[data-state="lion"] .sh-bar { filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.55)) drop-shadow(0 2px 0 rgba(0, 0, 0, 0.4)); }
+.sh-m-fury[data-state="lion"].is-low .sh-s-fill { animation: sh-throb 0.5s ease-in-out infinite; }
+.sh-m-fury[data-state="revert"] { opacity: 0.55; }
+
+/* clarão do golpe recebido */
+.sh-flash { position: absolute; inset: 0; pointer-events: none; border-radius: inherit; opacity: 0; box-shadow: inset 0 0 36px rgba(255, 255, 255, 0.28); }
+.sh-flash.is-on { animation: sh-flash 0.4s ease-out; }
+
+/* ---------------------------------------------------------------- comandos (embaixo, no centro) */
+.sh-cmds {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--pb) - 6px);
+  transform: translateX(-50%);
+  display: flex;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 18px 4px;
+  pointer-events: none;
+  color: var(--sh-chalk);
+  font-family: var(--sh-mono);
+  text-shadow: var(--sh-ink);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+}
+.sh-cmds::before {
+  content: '';
+  position: absolute;
+  inset: -8px -36px -14px;
+  z-index: -1;
+  background: radial-gradient(ellipse 50% 70% at 50% 100%, rgba(10, 10, 11, 0.78) 0%, rgba(10, 10, 11, 0.5) 60%, rgba(10, 10, 11, 0) 100%);
+}
+#hud[data-screen="playing"] .sh-cmds,
+#hud[data-screen="paused"] .sh-cmds { opacity: 1; visibility: visible; transition: opacity 0.3s ease; }
+#hud.is-touch .sh-cmds { display: none; }
+
+.sh-cmd {
+  position: relative;
+  width: 72px;
+  display: grid;
+  justify-items: center;
+  row-gap: 1px;
+}
+.sh-cmd[hidden] { display: none; }
+.sh-cmd-art { width: 52px; height: 52px; overflow: visible; }
+.sh-cmd-ico { color: var(--sh-chalk); transition: opacity 0.18s; }
+.sh-cmd-ico use { color: inherit; }
+.sh-halo { fill: #fff; opacity: 0; transition: opacity 0.15s; }
+.sh-seal { fill: #c8c8c8; opacity: 0.35; transition: opacity 0.2s, fill 0.2s; }
+.sh-seal2 { fill: #999; opacity: 0.35; }
+.sh-cd { fill: none; stroke: #eee; stroke-width: 2.2; opacity: 0; transition: opacity 0.15s; }
+.sh-cd-num {
+  position: absolute;
+  top: -2px;
+  right: 4px;
+  font: 700 12px/1 var(--sh-mono);
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+.sh-cmd-lbl { font-size: 10px; letter-spacing: 0.08em; white-space: nowrap; }
+.sh-cmd-key { font-size: 10px; letter-spacing: 0.12em; color: #a8a8a8; white-space: nowrap; min-height: 1.2em; }
+
+/* estados: indisponível (apagado), pronto (aceso), em uso (aro e brilho), solte (aro branco pulsando), recarga */
+.sh-cmd.is-off .sh-cmd-ico { opacity: 0.38; }
+.sh-cmd.is-off .sh-cmd-lbl { color: #8a8a8a; }
+.sh-cmd.is-ready .sh-cmd-ico { color: #fff; filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.45)); }
+.sh-cmd.is-ready .sh-seal { opacity: 1; fill: #efefef; }
+.sh-cmd.is-ready .sh-seal2 { opacity: 0.8; }
+.sh-cmd.is-pressed .sh-halo { opacity: 0.5; }
+.sh-cmd.is-pressed .sh-cmd-ico { color: #fff; filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.75)); }
+.sh-cmd.is-release .sh-halo { opacity: 1; animation: sh-throb 0.22s ease-in-out infinite; }
+.sh-cmd.is-release .sh-cmd-lbl { color: #fff; font-weight: 700; }
+.sh-cmd.is-cool .sh-cd { opacity: 1; }
+.sh-cmd.is-cool .sh-cmd-ico { opacity: 0.38; }
+
+/* ---------------------------------------------------------------- aviso (toast) */
+.sh-toast {
+  position: absolute;
+  left: 50%;
+  bottom: calc(var(--pb) + 150px);
+  max-width: min(90%, 420px);
+  width: max-content;
+  padding: 9px 16px;
+  transform: translate(-50%, 5px);
+  color: #eee;
+  background: rgba(20, 20, 20, 0.93);
+  border-left: 2px solid #ccc;
+  font: 13px/1.35 var(--sh-mono);
+  letter-spacing: 0.04em;
+  text-align: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s, transform 0.15s;
+}
+.sh-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+#hud.is-touch .sh-toast { bottom: calc(var(--pb) + 250px); }
+
+/* a dica dos controles sobe acima da barra de comandos */
+#hud:not(.is-touch) .hint { bottom: calc(var(--pb) + 84px); }
+
+/* ---------------------------------------------------------------- telas estreitas */
+@media (max-width: 760px) {
+  .sh-vitals { --sh-w: min(300px, calc(100vw - 150px)); }
+  .sh-cmd { width: 52px; }
+  .sh-cmd-art { width: 42px; height: 42px; }
+  .sh-cmd-lbl { display: none; }
+}
+@media (max-width: 420px) {
+  .sh-vitals { padding: 6px 10px 8px; }
+  .sh-name { font-size: 16px; letter-spacing: 0.24em; }
+  .sh-form { display: none; }
+  .sh-cap span:first-child { display: none; }
+  .sh-cmd { width: 44px; }
+}
+/* telas grandes: HUD proporcional (como o resto do HUD) */
+@media (min-width: 1400px) and (min-height: 900px) {
+  .sh-vitals, .sh-cmds, .sh-toast { zoom: 1.25; }
+}
+@media (min-width: 2200px) and (min-height: 1300px) {
+  .sh-vitals, .sh-cmds, .sh-toast { zoom: 1.6; }
+}
+
+@keyframes sh-flash { from { opacity: 1; } to { opacity: 0; } }
+@keyframes sh-throb { 50% { opacity: 0.55; } }
+@keyframes sh-blink { 50% { opacity: 0.35; } }
+@keyframes sh-glow {
+  0%, 100% { filter: drop-shadow(0 2px 0 rgba(0, 0, 0, 0.4)); }
+  50% { filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.85)) drop-shadow(0 2px 0 rgba(0, 0, 0, 0.4)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sh-vitals *, .sh-cmds *, .sh-toast { transition: none !important; animation: none !important; }
+}

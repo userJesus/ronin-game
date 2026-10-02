@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Segurança · relato privado
+    url: https://github.com/userJesus/ronin-game/security/advisories/new
+    about: Para vulnerabilidades, use o canal privado em vez de uma issue pública.

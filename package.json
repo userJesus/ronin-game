@@ -1,0 +1,65 @@
+{
+  "name": "ronin-game",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Jogo de ação isométrico em preto e branco para o navegador: uma lâmina contra ondas sem fim de samurais, na chuva e na lama. Three.js (WebGL2), TypeScript e áudio procedural.",
+  "keywords": [
+    "game",
+    "browser-game",
+    "action-game",
+    "threejs",
+    "webgl",
+    "webgl2",
+    "pixel-art",
+    "isometric",
+    "samurai",
+    "sumi-e",
+    "black-and-white",
+    "typescript",
+    "vite",
+    "web-audio",
+    "procedural-audio"
+  ],
+  "homepage": "https://userjesus.github.io/ronin-game/",
+  "bugs": {
+    "url": "https://github.com/userJesus/ronin-game/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/userJesus/ronin-game.git"
+  },
+  "license": "MIT",
+  "author": "Jesus C. Oliveira (https://github.com/userJesus)",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "sprites": "node scripts/extract-sprites.mjs",
+    "menu-art": "node scripts/menu-art.mjs",
+    "brand": "node scripts/brand.mjs",
+    "media": "node scripts/media.mjs",
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "build:single": "tsc --noEmit && vite build --mode single",
+    "preview": "vite preview --port 4173 --strictPort",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "check:repo": "node scripts/check-repo.mjs",
+    "check": "npm run check:repo && npm run typecheck && npm run test && npm run build && npm run build:single && npm run test:e2e"
+  },
+  "dependencies": {
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/pngjs": "^6.0.5",
+    "@types/three": "^0.186.0",
+    "pngjs": "^7.0.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.1",
+    "vite-plugin-singlefile": "^2.3.3",
+    "vitest": "^5.0.3"
+  }
+}

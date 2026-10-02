@@ -1,0 +1,22 @@
+name: Ideia
+description: Sugira uma melhoria ou algo novo
+labels: [enhancement]
+body:
+  - type: textarea
+    id: ideia
+    attributes:
+      label: A ideia
+      description: O que você gostaria de ver no jogo ou no código?
+    validations:
+      required: true
+  - type: textarea
+    id: motivo
+    attributes:
+      label: Por quê
+      description: Que problema resolve ou o que acrescenta à experiência?
+  - type: checkboxes
+    id: identidade
+    attributes:
+      label: Identidade do jogo
+      options:
+        - label: A ideia respeita a direção de arte (só tons de cinza, pixel art sem suavização, chuva e nanquim)

@@ -1,0 +1,14 @@
+# texto normalizado em LF; binários nunca convertidos
+* text=auto eol=lf
+
+*.png binary
+*.webp binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+
+# lockfile gerado: o GitHub recolhe nos diffs e não conta nas linguagens
+package-lock.json linguist-generated=true

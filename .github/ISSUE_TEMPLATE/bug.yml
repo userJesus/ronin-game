@@ -1,0 +1,44 @@
+name: Bug
+description: Algo não funciona como deveria
+labels: [bug]
+body:
+  - type: textarea
+    id: problema
+    attributes:
+      label: O que aconteceu
+      description: Descreva o problema e o que você esperava ver.
+    validations:
+      required: true
+  - type: textarea
+    id: passos
+    attributes:
+      label: Como reproduzir
+      description: >-
+        Passo a passo. Se puder, inclua a URL com os parâmetros da partida
+        (`?seed=N&stage=field|temple&char=ronin|tomoe`): a mesma semente repete o mesmo cenário e a mesma horda.
+      placeholder: |
+        1. Abrir http://localhost:5173/?seed=7&stage=temple
+        2. ...
+    validations:
+      required: true
+  - type: input
+    id: ambiente
+    attributes:
+      label: Navegador, sistema e aparelho
+      placeholder: Chrome 141, Windows 11, notebook com GPU integrada
+    validations:
+      required: true
+  - type: dropdown
+    id: controle
+    attributes:
+      label: Controle usado
+      multiple: true
+      options:
+        - Teclado e mouse
+        - Gamepad
+        - Toque
+  - type: textarea
+    id: console
+    attributes:
+      label: Erros do console e capturas de tela
+      description: Abra as ferramentas do navegador (F12 → Console) e cole os erros. Capturas ajudam muito.

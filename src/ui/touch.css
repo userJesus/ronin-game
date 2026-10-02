@@ -1,0 +1,128 @@
+/* Controles de toque: joystick flutuante à esquerda, botões de nanquim à direita. */
+.touch {
+  position: absolute;
+  inset: 0;
+  /* o padding só guarda a margem segura (lida por touch.ts); filhos são absolutos */
+  padding: 0 env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  pointer-events: none;
+  display: none;
+  -webkit-touch-callout: none;
+}
+.touch.is-on { display: block; }
+
+.touch-stick {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 128px;
+  height: 128px;
+  margin: -64px 0 0 -64px;
+  border-radius: 50%;
+  border: 2px solid rgba(233, 231, 226, 0.42);
+  background: rgba(11, 11, 12, 0.26);
+  box-shadow: 0 0 0 1px rgba(11, 11, 12, 0.5);
+  opacity: 0.55;
+  transition: opacity 0.15s ease;
+  will-change: transform;
+}
+.touch-stick.is-held { opacity: 1; }
+.touch-knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 54px;
+  height: 54px;
+  margin: -27px 0 0 -27px;
+  border-radius: 50%;
+  background: rgba(233, 231, 226, 0.82);
+  box-shadow: 0 0 0 2px #0b0b0c, 0 3px 0 2px rgba(0, 0, 0, 0.35);
+  will-change: transform;
+}
+
+.touch-btns {
+  position: absolute;
+  right: max(16px, env(safe-area-inset-right, 0px));
+  bottom: max(20px, env(safe-area-inset-bottom, 0px));
+  width: 184px;
+  height: 184px;
+}
+.tbtn {
+  position: absolute;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 1px;
+  padding: 0;
+  border: 2px solid rgba(233, 231, 226, 0.55);
+  border-radius: 50%;
+  background: rgba(11, 11, 12, 0.62);
+  color: #e9e7e2;
+  box-shadow: 0 0 0 1px rgba(11, 11, 12, 0.7), 0 4px 0 rgba(0, 0, 0, 0.3);
+  pointer-events: auto;
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  cursor: pointer;
+}
+/* ícone de giz (os mesmos do HUD de pedra) e o nome em letra de máquina */
+.tbtn .sh-ico { width: 28px; height: 28px; color: currentColor; }
+.tbtn span {
+  font: 700 10px/1 "Courier New", ui-monospace, monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.tbtn.is-down {
+  background: #e9e7e2;
+  color: #0b0b0c;
+  border-color: #0b0b0c;
+  transform: scale(0.94);
+}
+
+.tbtn-cut { right: 0; bottom: 0; width: 88px; height: 88px; }
+.tbtn-cut .sh-ico { width: 38px; height: 38px; }
+.tbtn-dash { right: 98px; bottom: 2px; width: 70px; height: 70px; }
+.tbtn-iaido { right: 10px; bottom: 98px; width: 70px; height: 70px; }
+.tbtn-guard { right: 100px; bottom: 86px; width: 64px; height: 64px; }
+.tbtn-kiai { right: 88px; bottom: 160px; width: 58px; height: 58px; opacity: 0.45; }
+.tbtn-kiai.is-ready { opacity: 1; border-color: #e9e7e2; box-shadow: 0 0 0 1px #0b0b0c, 0 0 0 4px rgba(233, 231, 226, 0.35), 0 4px 0 rgba(0, 0, 0, 0.3); }
+
+/* iaido sem Ki: apagado; pronto: aro claro; carregando: invertido (como leão, o mesmo botão é o Rugido:
+   apagado na recarga, pronto com a recarga zerada, invertido carregando) */
+.tbtn-iaido { opacity: 0.5; }
+.tbtn-iaido.is-ready { opacity: 1; border-color: #e9e7e2; box-shadow: 0 0 0 1px #0b0b0c, 0 0 0 4px rgba(233, 231, 226, 0.35), 0 4px 0 rgba(0, 0, 0, 0.3); }
+.tbtn-iaido.is-charging { background: #e9e7e2; color: #0b0b0c; }
+
+/* Leão (só o Ronin): no alto da coluna da direita, acima do iaido e ao lado do Kiai, longe do arco do polegar.
+   Enchendo: apagado; Fúria cheia: aro claro pulsando; na forma: invertido (apertar volta a humano). */
+.tbtn[hidden] { display: none; }
+.tbtn-lion { right: 16px; bottom: 176px; width: 58px; height: 58px; opacity: 0.45; }
+.tbtn-lion.is-ready {
+  opacity: 1;
+  border-color: #e9e7e2;
+  box-shadow: 0 0 0 1px #0b0b0c, 0 0 0 4px rgba(233, 231, 226, 0.35), 0 4px 0 rgba(0, 0, 0, 0.3);
+  animation: tbtn-lion-ready 1.4s ease-in-out infinite;
+}
+.tbtn-lion.is-active { opacity: 1; background: #e9e7e2; color: #0b0b0c; border-color: #0b0b0c; }
+.tbtn-lion.is-active.is-down { background: rgba(11, 11, 12, 0.62); color: #e9e7e2; border-color: #e9e7e2; }
+
+/* virando leão e voltando: tudo travado; na forma: esquiva, defesa e Kiai travados (o toque não acende) */
+.tbtn.is-locked { opacity: 0.2; }
+.tbtn.is-locked.is-down {
+  background: rgba(11, 11, 12, 0.62);
+  color: #e9e7e2;
+  border-color: rgba(233, 231, 226, 0.55);
+  transform: none;
+}
+
+@keyframes tbtn-lion-ready {
+  50% { box-shadow: 0 0 0 1px #0b0b0c, 0 0 0 7px rgba(233, 231, 226, 0.5), 0 4px 0 rgba(0, 0, 0, 0.3); }
+}
+
+@media (max-height: 420px) {
+  .touch-btns { transform: scale(0.86); transform-origin: 100% 100%; }
+}
+/* com o botão Leão a coluna fica mais alta: em telas bem baixas encolhe mais para não tocar o placar */
+@media (max-height: 380px) {
+  .touch.has-lion .touch-btns { transform: scale(0.8); }
+}
